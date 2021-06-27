@@ -1,0 +1,39 @@
+# Maintainer: Hangsia Hong <hangsiahong@koompi.org>
+# Contributor: Devin Cofer <ranguvar[at]ranguvar[dot]io>
+# Contributor: DriverX
+# Contributor: Nicolas Quiénot <niQo @ aur>
+# Contributor: Martin Schrodt <martin@schrodt.org>
+
+pkgname=nvme-cli
+pkgver=1.14
+pkgrel=1
+pkgdesc="NVM-Express user space tooling for Linux"
+arch=('i686' 'x86_64')
+url="https://github.com/linux-nvme/nvme-cli"
+license=('GPL')
+makedepends=('libsystemd')
+depends=('util-linux')
+install=nvme-cli.install
+# checkdepends=('python2-nose' 'python-nose')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/linux-nvme/${pkgname}/archive/v${pkgver}.tar.gz")
+sha256sums=('07ead5e006212310c424526c84b2ea2822677225e030a75ca96a7f8b48d786bb')
+
+build() {
+	cd "${pkgname}-${pkgver}"
+	make PREFIX=/usr
+}
+
+# Tests require a working NVME disk.
+# check() {
+# 	cd "${pkgname}-${pkgver}"
+# 	make test
+# }
+
+package() {
+	cd "${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" UDEVDIR=/usr/lib/udev PREFIX=/usr SBINDIR=/usr/bin install-spec
+
+	# This is done because we don't want the hostnqn and hostid files tracked.
+	# they are supposed to be unique
+	rm $pkgdir/etc/nvme/host{nqn,id}
+}

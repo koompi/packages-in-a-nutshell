@@ -1,0 +1,31 @@
+# Maintainer: Hangsia Hong <hangsiahong@koompi.org>
+# Contributor: Thomas Arnhold <thomas at arnhold dot org>
+
+pkgname=libmwaw
+pkgver=0.3.19
+pkgrel=1
+pkgdesc="Import library for some old mac text documents."
+arch=('x86_64')
+url="https://sourceforge.net/projects/libmwaw/"
+license=('LGPL2.1' 'MPL')
+depends=('librevenge')
+makedepends=('boost' 'doxygen')
+source=(https://sourceforge.net/projects/${pkgname}/files/${pkgname}/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.xz)
+sha1sums=('313deb59ca303c5830b63c44d404fe9fc2660c0b')
+
+build() {
+  cd "${pkgname}"-${pkgver}
+  ./configure --prefix=/usr
+  make
+}
+
+
+check() {
+  cd "${pkgname}"-${pkgver}
+  make check
+}
+
+package() {
+  cd "${pkgname}"-${pkgver}
+  make DESTDIR="$pkgdir" install
+}

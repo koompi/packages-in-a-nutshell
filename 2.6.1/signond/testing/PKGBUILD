@@ -1,0 +1,29 @@
+# Maintainer: Hangsia Hong <hangsiahong@koompi.org>
+# Contributor: Andrea Scarpino <andrea@archlinux.org>
+# Contributor: Hangsia Hong <hangsiahong@koompi.org>
+
+pkgname=signond
+pkgver=8.60
+pkgrel=3
+pkgdesc="A D-Bus service which performs user authentication on behalf of its clients"
+arch=(x86_64)
+url="https://gitlab.com/accounts-sso/signond/"
+license=(LGPL)
+depends=(qt5-base libproxy)
+makedepends=(doxygen graphviz ttf-font qt5-tools)
+source=("https://gitlab.com/accounts-sso/signond/-/archive/VERSION_$pkgver/signond-VERSION_$pkgver.tar.bz2")
+sha256sums=('bb64fb82ecf8ce8410e61004bcb9ed5ce9da22a5aa7a80b8bb926a98f201d371')
+
+build() {
+  cd $pkgname-VERSION_$pkgver
+  qmake PREFIX=/usr LIBDIR=/usr/lib CONFIG+=rtti
+  make
+}
+
+package() {
+  cd $pkgname-VERSION_$pkgver
+  make INSTALL_ROOT="$pkgdir" install
+
+  # Do not ship docs
+  rm -rf "$pkgdir"/usr/share/doc
+}

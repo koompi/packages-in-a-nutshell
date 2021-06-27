@@ -1,0 +1,41 @@
+# Maintainer: Hangsia Hong <hangsiahong@koompi.org>
+# Contributor: Hangsia Hong <hangsiahong@koompi.org>
+
+pkgname=libgusb
+pkgver=0.3.7
+pkgrel=1
+pkgdesc='GObject wrapper for libusb1'
+url=https://github.com/hughsie/libgusb
+arch=(x86_64)
+license=(LGPL2.1)
+depends=(
+  glib2
+  libusb
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+  vala
+)
+_tag=ff9c606d9d72c7dd369ad220d92729556faaaf0c
+source=(git+https://github.com/hughsie/libgusb.git#tag=${_tag})
+sha256sums=(SKIP)
+
+pkgver() {
+  cd libgusb
+
+  git describe --tags
+}
+
+build() {
+  arch-meson libgusb build
+  ninja -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+}
+
+# vim: ts=2 sw=2 et:

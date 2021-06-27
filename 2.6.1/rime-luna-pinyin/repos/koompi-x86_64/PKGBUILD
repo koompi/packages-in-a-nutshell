@@ -1,0 +1,34 @@
+# Maintainer: Hangsia Hong <hangsiahong@koompi.org>
+
+pkgname=rime-luna-pinyin
+pkgver=0.0.0.20210303
+_commit=c7c380d4da10d1aba538d084016147bd5e1997fa
+pkgrel=1
+pkgdesc="Luna pinyin for rime"
+arch=('x86_64')
+url="https://github.com/rime/rime-luna-pinyin"
+license=('LGPL')
+# dependency for reverse lookup
+depends=('rime-stroke')
+makedepends=('librime' 'rime-prelude' 'rime-essay')
+source=("https://github.com/rime/rime-luna-pinyin/archive/$_commit/rime-luna-pinyin-$_commit.tar.gz")
+sha512sums=('0dd28fcbb7132718017b32cf023676d6179f6e6659ab8d2c6b6d3231af51a8e81c06b66b260efebfc3296ac063172ddfa6bc1cec371871ca1e3cfd0bedc34b04')
+
+prepare() {
+  cd $pkgname-$_commit
+  # Link essentials
+  for _f in $(pacman -Qql rime-prelude rime-essay | grep -v "/$"); do ln -sf $_f; done
+}
+
+build(){
+  cd $pkgname-$_commit
+  for _s in $(ls *.schema.yaml); do rime_deployer --compile $_s; done
+}
+
+package() {
+  cd $pkgname-$_commit
+  find . -type l -delete
+  rm build/*.txt
+  install -Dm644 *.yaml -t "$pkgdir"/usr/share/rime-data/
+  install -Dm644 build/* -t "$pkgdir"/usr/share/rime-data/build/
+}

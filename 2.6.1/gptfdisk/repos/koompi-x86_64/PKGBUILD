@@ -1,0 +1,43 @@
+# Maintainer: Hangsia Hong <hangsiahong@koompi.org>
+# Contributor: Hangsia Hong <hangsiahong@koompi.org>
+# Contributor: Hokum <hokum_at_mail_dot_ru>
+
+pkgname=gptfdisk
+pkgver=1.0.8
+pkgrel=1
+pkgdesc="A text-mode partitioning tool that works on GUID Partition Table (GPT) disks"
+arch=('x86_64')
+url="https://www.rodsbooks.com/gdisk/"
+license=('GPL2')
+depends=('gcc-libs' 'popt' 'libuuid.so' 'libncursesw.so')
+provides=("gdisk=$pkgver")
+conflicts=('gdisk')
+replaces=('gdisk')
+source=(https://downloads.sourceforge.net/project/$pkgname/$pkgname/$pkgver/$pkgname-$pkgver.tar.gz)
+sha256sums=('95d19856f004dabc4b8c342b2612e8d0a9eebdd52004297188369f152e9dc6df')
+
+prepare() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  # https://sourceforge.net/p/gptfdisk/discussion/939590/thread/bc29ca06f8/
+  sed -i '/^#include /s:ncursesw/::' gptcurses.cc
+}
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make
+}
+
+check() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make test
+}
+
+package () {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  install -d "$pkgdir"/usr/{bin,share/{doc/gdisk,man/man8}}
+  install -t "$pkgdir/usr/bin" {,c,s}gdisk fixparts
+  install -m644 -t "$pkgdir/usr/share/man/man8" {{,c,s}gdisk,fixparts}.8
+  install -m644 -t "$pkgdir/usr/share/doc/gdisk" README NEWS
+}

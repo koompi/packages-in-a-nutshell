@@ -1,0 +1,64 @@
+# Maintainer: Hangsia Hong <hangsiahong@koompi.org>
+# Contributor: Allan McRae <allan@archlinux.org>
+# Contributor: Jason Chu <jchu@xentac.net>
+
+pkgbase=openal
+pkgname=(openal openal-examples)
+pkgver=1.21.1
+pkgrel=1
+pkgdesc="Cross-platform 3D audio library, software implementation"
+arch=(x86_64)
+url="https://github.com/kcat/openal-soft"
+license=(LGPL)
+depends=(gcc-libs)
+makedepends=(alsa-lib libpulse fluidsynth portaudio jack qt5-base sdl2
+             libsndfile ffmpeg libmysofa git cmake)
+optdepends=('qt5-base: alsoft-config GUI Configurator'
+            'fluidsynth: MIDI rendering'
+            'libmysofa: makemhr tool')
+_commit=ae4eacf147e2c2340cc4e02a790df04c793ed0a9  # tags/1.21.1
+source=("git+https://github.com/kcat/openal-soft#commit=$_commit")
+sha512sums=('SKIP')
+
+pkgver() {
+  cd openal-soft
+  git describe --tags | sed 's/^openal-soft-//;s/-/+/g'
+}
+
+prepare() {
+  cd openal-soft
+}
+
+build() {
+  cmake -S openal-soft -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_LIBDIR=lib
+  cmake --build build
+}
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_openal() {
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dt "$pkgdir/usr/share/doc/openal" -m644 openal-soft/docs/*
+
+  cd "$pkgdir"
+  _pick examples usr/bin/al{ffplay,hrtf,latency,loopback,multireverb}
+  _pick examples usr/bin/al{play,record,reverb,stream,tonegen}
+}
+
+package_openal-examples() {
+  pkgdesc+=" (example programs)"
+  depends=("openal=$pkgver-$pkgrel" sdl2 libsndfile ffmpeg)
+  optdepends=()
+  mv examples/* "$pkgdir"
+}

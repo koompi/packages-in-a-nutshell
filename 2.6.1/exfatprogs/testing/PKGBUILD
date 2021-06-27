@@ -1,0 +1,32 @@
+# Maintainer: Frederik Schwan <freswa at archlinux dot org>
+# Contributor: Marco Cilloni <krnlpk@gmail.com>
+
+pkgname=exfatprogs
+pkgver=1.1.2
+pkgrel=1
+pkgdesc='exFAT filesystem userspace utilities for the Linux Kernel exfat driver'
+arch=('x86_64')
+url='https://github.com/exfatprogs/exfatprogs'
+license=('GPL2')
+depends=('glibc')
+provides=('exfat-utils')
+conflicts=('exfat-utils')
+source=("https://github.com/exfatprogs/exfatprogs/archive/${pkgver}/${pkgname}-${pkgver}.tar.gz")
+b2sums=('fecdeea230c18029b86f9d53bf96ea5fc80dacc770161009b98ee0877068624c2f8976825d412797172a7eeb143a1c6b54b41e84bb6732353b64b4c8a16ea2d1')
+
+prepare() {
+  cd exfatprogs-${pkgver}
+  ./autogen.sh
+}
+
+build() {
+  cd exfatprogs-${pkgver}
+  ./configure --prefix=/usr --sbindir=/usr/bin
+  make
+}
+
+package() {
+  cd exfatprogs-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 -t "${pkgdir}"/usr/share/man/man8 */*.8
+}
